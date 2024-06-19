@@ -1,11 +1,11 @@
 // Define your column definitions based on the JSON structure
 const columnDefs = [
-  { headerName: "Key ID's", field: "0" },  
-  { headerName: "Director", field: "1" },      
-  { headerName: "ADM", field: "2" },      
-  { headerName: "Team Name", field: "3" },            
-  { headerName: "Total", field: "4" },     
-  { headerName: "Onsite", field: "5" }, 
+  { headerName: "Key ID's", field: "0" },
+  { headerName: "Director", field: "1" },
+  { headerName: "ADM", field: "2" },
+  { headerName: "Team Name", field: "3" },
+  { headerName: "Total", field: "4" },
+  { headerName: "Onsite", field: "5" },
   { headerName: "Offshore", field: "6" },
   { headerName: "KT Start Date", field: "7" },
   { headerName: "KT End Date", field: "8" },
@@ -23,107 +23,68 @@ const columnDefs = [
   // ... Add more column definitions for the remaining data points (dates and status)
 ];
 
-// Define your row data from the JSON array
-const rowData = [
-  // Assuming your JSON data is in a variable named "jsonData"
-  jsonData =  [
-    "ProjectName_01",
-    "Benjamin",
-    "Oliver",
-    "Team One",
-    3,
-    0,
-    3,
-    "2/5/2024",
-    "3/5/2024",
-    3,
-    3,
-    3,
-    3,
-    "2/20/2024",
-    "2/27/2024",
-    "3/5/2024",
-    "3/6/2024",
-    "3/6/2024",
-    "KT Completed. In Steady State.",
-    ""
-  ],
-  [
-    "ProjectName_02",
-    "Benjamin",
-    "Oliver",
-    "Team two",
-    2,
-    0,
-    2,
-    "02/21/2024",
-    "03/28/2024",
-    2,
-    2,
-    2,
-    2,
-    "03/07/2024",
-    "03/21/2024",
-    "03/28/2024",
-    "03/29/2024",
-    "03/29/2024",
-    "KT Completed. In Steady State.",
-    null
-  ],
-  [
-    "ProjectName_03",
-    "Serenity Panickar",
-    "Noah",
-    "Team Three",
-    3,
-    0,
-    3,
-    "1/29/2024",
-    "3/15/2024",
-    3,
-    3,
-    3,
-    3,
-    "2/16/2024",
-    "3/1/2024",
-    "3/29/2024",
-    "4/1/2024",
-    "4/1/2024",
-    "KT Completed. In Steady State.",
-    ""
-  ],
-  [
-    "ProjectName_04",
-    "Serenity Panickar",
-    "Noah",
-    "Team Four",
-    1,
-    1,
-    0,
-    "1/29/2024",
-    "3/15/2024",
-    1,
-    1,
-    1,
-    1,
-    "2/16/2024",
-    "3/1/2024",
-    "3/29/2024",
-    "4/1/2024",
-    "4/1/2024",
-    "KT Completed. In Steady State.",
-    "Incumbent disengagement date changed to 6/28 to accommodate release schedule planned to be performed by incumbent, however steady state is negotiated to begin from 5/7 for TechM."
-  ]
-  
-];
+// Define an empty array to hold the row data from the excel sheet
+const rowData = [];
 
-// Get a reference to the DOM element for the grid
-const gridDiv = document.querySelector('#myGrid');
+// Function to read the excel sheet and populate rowData
+function readExcelData(file) {
+  const reader = new FileReader();
 
-// Create the agGrid instance
-const gridOptions = {
-  columnDefs: columnDefs,
-  rowData: rowData,
+  return new Promise((resolve, reject) => {
+    reader.onload = function(event) {
+      const data = event.target.result;
+      const workbook = XLSX.read(data, { type: 'binary' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+
+      // Convert worksheet data to an array of arrays (suitable for rowData)
+      const excelRows = XLSX.utils.sheet_to_row_object_array(worksheet);
+      rowData.push(...excelRows); // Spread operator to add each row to rowData
+
+      console.log("Excel data loaded successfully!");
+      console.log("Excel data in rowData:", rowData);
+
+      // Get a reference to the DOM element for the grid (assuming it exists)
+      const gridDiv = document.querySelector('#myGrid');
+
+      console.log("Grid element found:", gridDiv); // Check if grid element exists
+
+      // Create the agGrid instance using createGrid
+      const gridApi = agGrid.createGrid(gridDiv, {
+        columnDefs: columnDefs,
+        rowData: rowData,
+      });
+
+      resolve(gridApi); // Resolve the promise with gridApi
+    };
+
+    reader.readAsArrayBuffer(file); // Read the excel file as an ArrayBuffer
+  });
+}
+
+// (Optional) Add a file input element to select the excel sheet
+const fileInput = document.createElement('input');
+fileInput.type = 'file';
+fileInput.accept = '.xlsx'; // Accept only excel files
+
+fileInput.onchange = function(event) {
+  const selectedFile = event.target.files[0];
+  if (selectedFile.name === 'Project_1.xlsx') {
+    readExcelData(selectedFile)
+      .then(gridApi => {
+        if (gridApi) {
+          gridApi.updateGridOptions({ rowData: rowData });
+          console.log("Grid data after update:", gridApi.getRowData()); // Log grid data
+        } else {
+          console.error("Grid creation failed.");
+        }
+      })
+      .catch(error => {
+        console.error("Error reading Excel data:", error);
+      });
+  } else {
+    console.error("Please select the file 'Project_1.xlsx'");
+  }
 };
 
-const grid = new agGrid.Grid(gridDiv, gridOptions);
+document.body.appendChild(fileInput); // Add the file input element to the body
