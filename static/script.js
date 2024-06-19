@@ -1,26 +1,25 @@
-// Define your column definitions based on the JSON structure
+// Define your column definitions based on the JSON structure (assuming data is in JSON format)
 const columnDefs = [
-  { headerName: "Key ID's", field: "0" },
-  { headerName: "Director", field: "1" },
-  { headerName: "ADM", field: "2" },
-  { headerName: "Team Name", field: "3" },
-  { headerName: "Total", field: "4" },
-  { headerName: "Onsite", field: "5" },
-  { headerName: "Offshore", field: "6" },
-  { headerName: "KT Start Date", field: "7" },
-  { headerName: "KT End Date", field: "8" },
-  { headerName: "CW ID", field: "9" },
-  { headerName: "ADID", field: "10" },
-  { headerName: "RSA", field: "11" },
-  { headerName: "Citrix/Laptop", field: "12" },
-  { headerName: "Knowledge Acquisition", field: "13" },
-  { headerName: "Assisted Perform", field: "14" },
-  { headerName: "Indpendent Perform", field: "15" },
-  { headerName: "Steady State", field: "16" },
-  { headerName: "Billing Start Date", field: "17" },
-  { headerName: "Key Updates", field: "18" },
-  { headerName: "Remarks", field: "19" },
-  // ... Add more column definitions for the remaining data points (dates and status)
+  { headerName: "Key ID's", field: "Key ID's" }, // Assuming "Key ID's" exists in your data
+  { headerName: "Director", field: "Director" },
+  { headerName: "ADM", field: "ADM" },
+  { headerName: "Team Name", field: "Team Name" },
+  { headerName: "Total", field: "Total", type: 'number' }, // Specify number type for totals
+  { headerName: "Onsite", field: "Onsite", type: 'number' }, // Specify number type
+  { headerName: "Offshore", field: "Offshore", type: 'number' }, // Specify number type
+  { headerName: "KT Start Date", field: "KT Start Date"}, // Assuming dates exist
+  { headerName: "KT End Date", field: "KT End Date" }, // Assuming dates exist
+  { headerName: "CW ID", field: "CW ID", type: 'number'  },
+  { headerName: "ADID", field: "ADID", type: 'number'  },
+  { headerName: "RSA", field: "RSA", type: 'number'  },
+  { headerName: "Citrix/Laptop", field: "Citrix/Laptop", type: 'number'  },
+  { headerName: "Knowledge Acquisition", field: "Knowledge Acquisition" },
+  { headerName: "Assisted Perform", field: "Assisted Perform" },
+  { headerName: "Indpendent Perform", field: "Indpendent Perform" },
+  { headerName: "Steady State", field: "Steady State" },
+  { headerName: "Billing Start Date", field: "Billing Start Date" },
+  { headerName: "Key Updates", field: "Key Updates" },
+  { headerName: "Remarks", field: "Remarks" },
 ];
 
 // Define an empty array to hold the row data from the excel sheet
@@ -71,10 +70,9 @@ fileInput.onchange = function(event) {
   const selectedFile = event.target.files[0];
   if (selectedFile.name === 'Project_1.xlsx') {
     readExcelData(selectedFile)
-      .then(gridApi => {
-        if (gridApi) {
+      .then(gridApi => { // **gridApi is resolved here**
+        if (gridApi) { // Check if gridApi is available before using it
           gridApi.updateGridOptions({ rowData: rowData });
-          console.log("Grid data after update:", gridApi.getRowData()); // Log grid data
         } else {
           console.error("Grid creation failed.");
         }
